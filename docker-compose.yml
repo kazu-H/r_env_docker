@@ -3,24 +3,22 @@ services:
         build:
             context: .
         environment:
-            - TZ=Europe/Madrid
+
             - DISABLE_AUTH=true
-            - PYTHONUSERBASE=/home/rstudio/.pip
+
         volumes:
-            - .:/home/rstudio/work
-            - renv:/home/rstudio/.cache/R/renv
-            - pip:/home/rstudio/.pip
-            - julia:/home/rstudio/.julia
-            - TinyTeX:/home/rstudio/.TinyTeX
-            - fonts:/usr/share/fonts
+            - type: bind
+              source: ./src
+              target: /home/rstudio/src
+
+            - type: bind
+              source: renv
+              target: /home/rstudio/.cache/R/renv
+
+        tty: true
+        stdin_open: true
+
 volumes:
   renv:
     external: true
-  pip:
-    external: true
-  julia:
-    external: true
-  TinyTeX:
-    external: true
-  fonts:
-    external: true
+

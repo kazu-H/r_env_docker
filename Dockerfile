@@ -1,22 +1,25 @@
-FROM rocker/rstudio
+FROM rocker/verse
+
+#change os env to Japanese setting
+
+ENV LANG ja_JP.UTF-8
+ENV LC_ALL ja_JP.UTF-8
+RUN sed -i '$d' /etc/locale.gen \
+  && echo "ja_JP.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen ja_JP.UTF-8 \
+    && /usr/sbin/update-locale LANG=ja_JP.UTF-8 LANGUAGE="ja_JP:ja"
+RUN /bin/bash -c "source /etc/default/locale"
+RUN ln -sf  /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+# install jp fonts
+RUN apt-get update && apt-get install -y \
+  fonts-ipaexfont \
+  fonts-noto-cjk
 
 RUN apt update && apt install -y \
-    openssh-client libxt-dev\
-    # Python
-    python3 python3-pip
+    openssh-client libxt-dev
 
-# Julia
-ENV JULIA_MINOR_VERSION=1.9
-ENV JULIA_PATCH_VERSION=2
-
-RUN wget https://julialang-s3.julialang.org/bin/linux/x64/${JULIA_MINOR_VERSION}/julia-${JULIA_MINOR_VERSION}.${JULIA_PATCH_VERSION}-linux-x86_64.tar.gz && \
-    tar xvf julia-${JULIA_MINOR_VERSION}.${JULIA_PATCH_VERSION}-linux-x86_64.tar.gz && \
-    rm julia-${JULIA_MINOR_VERSION}.${JULIA_PATCH_VERSION}-linux-x86_64.tar.gz && \
-    ln -s $(pwd)/julia-$JULIA_MINOR_VERSION.$JULIA_PATCH_VERSION/bin/julia /usr/bin/julia
-
-# DVC Path
-ENV PATH $PATH:~/.pip/bin
 
 # Package Cahce & Permission
-RUN cd /home/rstudio && mkdir .pip .cache .cache/R .cache/R/renv .TinyTeX .julia && \
-    chown rstudio:rstudio .pip .cache .cache/R .cache/R/renv .TinyTeX .julia
+RUN cd /home/rstudio && mkdir .cache .cache/R .cache/R/renv && \
+    chown rstudio:rstudio .cache .cache/R .cache/R/renv
